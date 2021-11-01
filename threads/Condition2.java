@@ -2,6 +2,10 @@ package nachos.threads;
 
 import nachos.machine.*;
 
+//Added Code
+import java.util.LinkedList;
+//End Added Code
+
 /**
  * An implementation of condition variables that disables interrupt()s for
  * synchronization.
