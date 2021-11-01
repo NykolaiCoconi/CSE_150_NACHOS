@@ -79,6 +79,10 @@ public class Condition2 {
 	}
 	//End Added Code
     }
-
+	
+    //Added Code
+    public LinkedList<KThread> sleepQ = new LinkedList<>();;
+    //End Added Code
+	
     private Lock conditionLock;
 }
