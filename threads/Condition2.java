@@ -2,10 +2,6 @@ package nachos.threads;
 
 import nachos.machine.*;
 
-//Added Code
-import java.util.LinkedList;
-//End Added Code
-
 /**
  * An implementation of condition variables that disables interrupt()s for
  * synchronization.
@@ -38,16 +34,15 @@ public class Condition2 {
 	Lib.assertTrue(conditionLock.isHeldByCurrentThread());
 
 	//Added Code
-	boolean intStatus = Machine.interrupt().disable();
-	    
-	conditionLock.release();  
-		
-	sleepQ.add(KThread.currentThread()); //Add thread to queue	
-	KThread.currentThread().sleep();	//Sleep Current thread
-	    
+	Machine.interrupt().disable();
+
+	conditionLock.release();
+
+	sleepQ.waitForAccess(KThread.currentThread());
+	KThread.currentThread().sleep();
+
 	conditionLock.acquire();
-	    
-	Machine.interrupt().restore(intStatus);
+	Machine.interrupt().enable();
 	//End Added Code
     }
 
@@ -57,19 +52,14 @@ public class Condition2 {
      */
     public void wake() {
 	Lib.assertTrue(conditionLock.isHeldByCurrentThread());
-	    
 	//Added Code
-	boolean intStatus = Machine.interrupt().disable();
-	    
-	if(!sleepQ.isEmpty()) {
-		if(KThread.currentThread() != null){
-			sleepQ.remove(KThread.currentThread()); //Remove from Queue
-			KThread.currentThread().ready(); //Make current Thread ready
-		}
+	Machine.interrupt().disable();
+	KThread temp = sleepQ.nextThread();
+	if (temp != null) {
+		temp.ready();
 	}
-	    
-	Machine.interrupt().restore(intStatus);
-	//End Added Code
+	Machine.interrupt().enable();
+//End Added Code    
     }
 
     /**
@@ -78,17 +68,17 @@ public class Condition2 {
      */
     public void wakeAll() {
 	Lib.assertTrue(conditionLock.isHeldByCurrentThread());
-	    
 	//Added Code
-	while(!sleepQ.isEmpty()) {
+	while(!sleepQ.empty()){
 		wake();
 	}
+	Machine.interrupt().enable();
 	//End Added Code
-    }
-	
-    //Added Code
-    public LinkedList<KThread> sleepQ = new LinkedList<KThread>();
-    //End Added Code
-	
+    } 
+
     private Lock conditionLock;
+
+    //Added Code
+    private ThreadQueue sleepQ = ThreadedKernel.scheduler.newThreadQueue(true);
+    //End Added Code
 }
