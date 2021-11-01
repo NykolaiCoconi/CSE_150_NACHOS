@@ -15,9 +15,22 @@ public class Communicator {
     /**
      * Allocate a new communicator.
      */
+	 private boolean wordToBeHeard =false;
+     //buffer to pass word
+     private int word;
+     //lock for condition variables and to maintain atomicity
+     private Lock lock = new Lock();
+     
+     //declare condition variable for listeners here
+     private Condition listenerReady = new Condition(lock);
+     
+     //declare condition variable for speakers here
+     private Condition speakerReady = new Condition(lock);
 	//constructor
     public Communicator() {
     	
+       
+       
    
 }
 
@@ -38,7 +51,7 @@ public class Communicator {
     	while(wordToBeHeard)//word to be heard
     	{	
     		// your code here
-    		listenerReady.sleep();
+    		speakerReady.sleep();
     		
     			
     	}
@@ -47,10 +60,8 @@ public class Communicator {
 
 		// notes that the buffer is full
 		wordToBeHeard = true;
-		speakerReady.wake();
+		listenerReady.wake();
 		// your code here
-
-		
 		lock.release();
 		
 		
@@ -73,12 +84,13 @@ public class Communicator {
     	listenerReady.wake();
     	while(!wordToBeHeard)
     	{
-    		speakerReady.sleep();
+    		listenerReady.sleep();
     	}
+    	
     	
     	int wordToHear = word;
     	wordToBeHeard= false;
-    	
+    	speakerReady.wake();
     	//code here
     	
     	lock.release();
@@ -89,18 +101,7 @@ public class Communicator {
     	
     }
     
-    private boolean wordToBeHeard =false;
-    //buffer to pass word
-    private int word;
-    //lock for condition variables and to maintain atomicity
-    private Lock lock = new Lock();
-    
-    //declare condition variable for listeners here
-    private Condition listenerReady = new Condition(lock);
-    
-    //declare condition variable for speakers here
-    private Condition speakerReady = new Condition(lock);
-   
+
  
     
     
