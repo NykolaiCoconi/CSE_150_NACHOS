@@ -63,7 +63,7 @@ public class Condition2 {
 	    
 	if(!sleepQ.isEmpty()) {
 		if(KThread.currentThread() != null){
-			
+			sleepQ.remove(KThread.currentThread()); //Remove from Queue
 			KThread.currentThread().ready(); //Make current Thread ready
 		}
 	}
