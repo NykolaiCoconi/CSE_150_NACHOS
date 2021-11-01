@@ -90,7 +90,7 @@ public class Communicator {
     	
     	int wordToHear = word;
     	wordToBeHeard= false;
-    	speakerReady.wake();
+    	//speakerReady.wake();
     	//code here
     	
     	lock.release();
