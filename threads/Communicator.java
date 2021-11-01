@@ -22,10 +22,10 @@ public class Communicator {
      private Lock lock = new Lock();
      
      //declare condition variable for listeners here
-     private Condition listenerReady = new Condition(lock);
+     private Condition listenerReady = new Condition2(lock);
      
      //declare condition variable for speakers here
-     private Condition speakerReady = new Condition(lock);
+     private Condition speakerReady = new Condition2(lock);
 	//constructor
     public Communicator() {
     	
