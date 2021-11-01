@@ -27,7 +27,14 @@ public class Alarm {
     	public long wakeTime;
     	public KThread thread;
     	@Override public int compareTo(WaitingThread anotherThread) {
-    		return Long.compare(this.wakeTime,anotherThread.wakeTime);
+    		//return Long.compare(this.wakeTime,anotherThread.wakeTime);
+    		if (wakeTime < anotherThread.wakeTime) {
+    		    return -1;
+    		}else if (wakeTime > anotherThread.wakeTime) {
+    		    return 1;
+    		}else {
+    		    return 0;
+    	    }
     	};
     };
     
