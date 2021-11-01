@@ -185,14 +185,19 @@ public class KThread {
 	Lib.debug(dbgThread, "Finishing thread: " + currentThread.toString());
 	
 	Machine.interrupt().disable();
-	    
-	//May have to add some code here, don't know yet. We'll see after testing.
-	    
+		
+	//Added Code
+	KThread thread = currentThread.waitQ.nextThread();
+	while(thread != null) {
+		thread.ready();
+		thread = currentThread.waitQ.nextThread();
+	}
+	//End Added Code
+	        
 	Machine.autoGrader().finishingCurrentThread();
 
 	Lib.assertTrue(toBeDestroyed == null);
 	toBeDestroyed = currentThread;
-
 
 	currentThread.status = statusFinished;
 	
