@@ -69,7 +69,7 @@ public class Condition2 {
     public void wakeAll() {
 	Lib.assertTrue(conditionLock.isHeldByCurrentThread());
 	//Added Code
-	while(!sleepQ.isEmpty()){
+	while(sleepQ != null){
 		wake();
 	}
 	Machine.interrupt().enable();
