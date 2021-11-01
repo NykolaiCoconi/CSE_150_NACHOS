@@ -42,16 +42,16 @@ public class Communicator {
         lock.acquire();
         while(wordToBeHeard) // wordToBeHeard, let speaker wait for listener
         {
-            // your code here
-            speakerReady.sleep(); // wait on listener
+          // your code here
+          speakerReady.sleep(); // wait on listener
         }
-      this.word = word;
-          // notes that the buffer is full
-          wordToBeHeard = true;
+        this.word = word;
+        // notes that the buffer is full
+        wordToBeHeard = true;
 
       // your code here
       listenerReady.wake(); // wake up listener
-
+      speakerReady.sleep(); // sleep to allow listener to return word before speak return
       lock.release();
     }
 
@@ -72,7 +72,7 @@ public class Communicator {
         wordToBeHeard = false; // already transferred word, reset buffer
 
         //code here
-      speakerReady.wake(); 
+        speakerReady.wake(); // wake up speaker after hearing word before returning
 
         lock.release();
         return wordToHear;
