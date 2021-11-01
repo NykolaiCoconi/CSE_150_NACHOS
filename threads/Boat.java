@@ -144,6 +144,9 @@ public class Boat
     		adultsOnMolokai++;
     		boatIsOnOahu = false;
     		if(initialAdults == adultsOnMolokai && initialChildren == childrenOnMolokai) {
+    			//We can use this since the Adult remembers the initial, and can just look around
+    			// on Molokai and count the number of Adults/Children
+    			
 				//set terminal boolean to false to end all loops and return
 				notDone = false;
 				return;
@@ -221,6 +224,8 @@ public class Boat
     			//check if done
     			//NEED TO CREATE TRACKER FOR NUMBER OF RIDERS PASSED TO MOLOKAI -- done?
     			if(initialAdults == adultsOnMolokai && initialChildren == childrenOnMolokai) {
+    				//Child simply looks around on the island and counts Children/Adults
+    				
     				//set terminal boolean to false to end all loops and return
     				notDone = false;
     				return;
@@ -240,8 +245,10 @@ public class Boat
     				childrenOnBoat = 0;
     				boatIsOnOahu = true;
     				if(childrenOnOahu > 1) {
+    					//Child is on Oahu, so it looks to see if there are any other Children
     					childOnOahu.wake();
     				} else if (adultsOnOahu > 0) {
+    					//If no children, and we see an adult, we wake that adult.
     					adultOnOahu.wake();
     				}
     			
