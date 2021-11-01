@@ -21,10 +21,10 @@ public class Communicator {
     //lock for condition variables and to maintain atomicity
     private Lock lock = new Lock();
     //declare condition variable for listeners here
-    private Condition2 listenerReady = new Condition2(lock);
+    private Condition listenerReady = new Condition(lock);
 
     //declare condition variable for speakers here
-    private Condition2 speakerReady = new Condition2(lock);
+    private Condition speakerReady = new Condition(lock);
 
     //constructor
     public Communicator() {}
