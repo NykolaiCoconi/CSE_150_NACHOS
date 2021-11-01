@@ -43,7 +43,7 @@ public class Condition2 {
 	conditionLock.release();  
 		
 	sleepQ.add(KThread.currentThread()); //Add thread to queue	
-	KThread.currentThread.sleep();	//Sleep Current thread
+	KThread.currentThread().sleep();	//Sleep Current thread
 	    
 	conditionLock.acquire();
 	    
