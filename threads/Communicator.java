@@ -1,4 +1,3 @@
-
 package nachos.threads;
 import java.util.Queue;
 import nachos.machine.*;
@@ -21,10 +20,10 @@ public class Communicator {
     //lock for condition variables and to maintain atomicity
     private Lock lock = new Lock();
     //declare condition variable for listeners here
-    private Condition2 listenerReady = new Condition2(lock);
+    private Condition listenerReady = new Condition(lock);
 
     //declare condition variable for speakers here
-    private Condition2 speakerReady = new Condition2(lock);
+    private Condition speakerReady = new Condition(lock);
 
     //constructor
     public Communicator() {}
@@ -43,15 +42,16 @@ public class Communicator {
         while(wordToBeHeard) // wordToBeHeard, let speaker wait for listener
         {
           // your code here
-          speakerReady.sleep(); // wait on listener
+          listenerReady.sleep(); // wait on listener
         }
+        
         this.word = word;
         // notes that the buffer is full
         wordToBeHeard = true;
 
       // your code here
-      listenerReady.wake(); // wake up listener
-      speakerReady.sleep(); // sleep to allow listener to return word before speak return
+      speakerReady.wake(); // wake up listener
+      //speakerReady.sleep(); // sleep to allow listener to return word before speak return
       lock.release();
     }
 
@@ -65,18 +65,17 @@ public class Communicator {
         lock.acquire();
         while(!wordToBeHeard) // buffer is empty
         {
-            listenerReady.sleep(); // wait on speaker
+            speakerReady.sleep(); // wait on speaker
         }
 
         int wordToHear = word; // transfer word
         wordToBeHeard = false; // already transferred word, reset buffer
 
         //code here
-        speakerReady.wake(); // wake up speaker after hearing word before returning
+        //speakerReady.wake(); // wake up speaker after hearing word before returning
 
         lock.release();
         return wordToHear;
     }
 }
-
 
