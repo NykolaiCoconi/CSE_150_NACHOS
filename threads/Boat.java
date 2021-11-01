@@ -40,8 +40,8 @@ public class Boat
 	System.out.println("\n ***Testing Boats with only 2 children***");
 	begin(0, 2, b);
 
-//	System.out.println("\n ***Testing Boats with 2 children, 1 adult***");
-//  	begin(1, 2, b);
+	System.out.println("\n ***Testing Boats with 2 children, 1 adult***");
+  	begin(1, 2, b);
 
 //  	System.out.println("\n ***Testing Boats with 3 children, 3 adults***");
 //  	begin(3, 3, b);
@@ -82,14 +82,14 @@ public class Boat
 	// Create threads here. See section 3.4 of the Nachos for Java
 	// Walkthrough linked from the projects page.
 
-	Runnable r = new Runnable() {
-	    public void run() {
-                SampleItinerary();
-            }
-    };
-    KThread t = new KThread(r);
-    t.setName("Sample Boat Thread");
-    t.fork();
+//	Runnable r = new Runnable() {
+//	    public void run() {
+//                SampleItinerary();
+//            }
+//    };
+//    KThread t = new KThread(r);
+//    t.setName("Sample Boat Thread");
+//    t.fork();
 
     Runnable r_child = new Runnable() {
     	public void run() {
@@ -137,6 +137,8 @@ public class Boat
     		bg.AdultRowToMolokai();
     		adultsOnMolokai++;
     		boatIsOnOahu = false;
+    		childOnMolokai.wake();
+    		adultOnMolokai.sleep();
     		
     	}
     }
@@ -161,11 +163,15 @@ public class Boat
     			
     			//sleeps
     			onOahu = false;
+    			childrenOnOahu--;
+    			childrenOnMolokai++;
+    			//childrenOnBoat--;
     			childOnMolokai.sleep();
     			
     			//Woken up by adult to ferry back to Oahu
     			bg.ChildRowToOahu();
     			boatIsOnOahu = true;
+    			onOahu = true;
     			//more code
     			
     			childrenOnBoat = 0;
@@ -182,13 +188,16 @@ public class Boat
     			bg.ChildRowToMolokai();
     			bg.ChildRideToMolokai();
     			boatIsOnOahu = false;
+    			childrenOnOahu--;
+    			childrenOnMolokai++;
     			
     			//code
+    			//System.out.println("Who awakens me?");
     			
     			//check if done
-    			//NEED TO CREATE TRACKER FOR NUMBER OF RIDERS PASSED TO MOLOKAI
-    			if(initialAdults == adultsOnOahu && initialChildren == childrenOnOahu) {
-    				//set terminal bool to false to end all loops and return
+    			//NEED TO CREATE TRACKER FOR NUMBER OF RIDERS PASSED TO MOLOKAI -- done?
+    			if(initialAdults == adultsOnMolokai && initialChildren == childrenOnMolokai) {
+    				//set terminal boolean to false to end all loops and return
     				notDone = false;
     				return;
     			} //boat terminates after this if statement
@@ -196,12 +205,21 @@ public class Boat
     			//else not done, so send one back to Oahu
     			else {
     				bg.ChildRowToOahu();
+    				childrenOnOahu++;
+    				onOahu = true;
     				//code for waking
     				
     				childrenOnBoat = 0;
     				boatIsOnOahu = true;
+    				if(childrenOnOahu >= 1) {
+    					childrenOnBoat = 1;
+    					childOnOahu.wake();
+    				} else if (adultsOnOahu > 0) {
+    					adultOnOahu.wake();
+    					childOnOahu.sleep();
+    				}
+    			
     				
-    				//code for sleep
     				childOnOahu.sleep();
     			}
     			
