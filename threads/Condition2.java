@@ -81,7 +81,7 @@ public class Condition2 {
     }
 	
     //Added Code
-    public LinkedList<KThread> sleepQ = new LinkedList<>();;
+    public LinkedList<KThread> sleepQ = new LinkedList<>();
     //End Added Code
 	
     private Lock conditionLock;
