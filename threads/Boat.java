@@ -1,6 +1,6 @@
 package nachos.threads;
 import nachos.ag.BoatGrader;
-import java.util.LinkedList;
+//import java.util.LinkedList;
 
 public class Boat
 {
@@ -10,7 +10,6 @@ public class Boat
     static boolean rowersToMolokai;
     static Lock lock;
     static int childrenOnBoat;
-    static LinkedList<KThread> waitingQueue;
     
     //Condition variables
     static Condition adultOnOahu;
@@ -43,8 +42,17 @@ public class Boat
 	System.out.println("\n ***Testing Boats with 2 children, 1 adult***");
   	begin(1, 2, b);
 
-//  	System.out.println("\n ***Testing Boats with 3 children, 3 adults***");
-//  	begin(3, 3, b);
+  	System.out.println("\n ***Testing Boats with 3 children, 3 adults***");
+  	begin(3, 3, b);
+  	
+  	System.out.println("\n BEGINNING STUDENT-DEFINED TEST CASES:");
+  	
+  	System.out.println("\n ***Testing Boats with 0 children, 1 adult***");
+  	begin(1, 0, b);
+
+  	System.out.println("\n ***Testing Boats with 1 children, 0 adults***");
+  	begin(0, 1, b);
+  	
     }
 
     public static void begin( int adults, int children, BoatGrader b )
@@ -75,8 +83,6 @@ public class Boat
     
     boatLocation = 0; //boat starts on Oahu, otherwise literally nothing works
     //not needed if just using boatIsOnOahu
-    
-    waitingQueue = new LinkedList<KThread>();
 	
 	
 	// Create threads here. See section 3.4 of the Nachos for Java
@@ -105,11 +111,11 @@ public class Boat
    
    	//Spawn Child threads
    	for(int i = 0; i < children; i++) {
-	   new KThread(r_child).setName("Child" + Integer.toString(i+1)).fork();
+	   new KThread(r_child).setName("Child " + Integer.toString(i+1)).fork();
    	}
    	//Spawn Adult threads
    	for(int i = 0; i < adults; i++) {
-   		new KThread(r_adult).setName("Adult" + Integer.toString(i+1)).fork();
+   		new KThread(r_adult).setName("Adult " + Integer.toString(i+1)).fork();
    	}
    	
    	//hold thread while grader runs
@@ -137,10 +143,18 @@ public class Boat
     		bg.AdultRowToMolokai();
     		adultsOnMolokai++;
     		boatIsOnOahu = false;
-    		childOnMolokai.wake();
+    		if(initialAdults == adultsOnMolokai && initialChildren == childrenOnMolokai) {
+				//set terminal boolean to false to end all loops and return
+				notDone = false;
+				return;
+			} //boat terminates after this if statement
+    		else {
+        		childOnMolokai.wake();
+    		}
     		adultOnMolokai.sleep();
     		
     	}
+    	lock.release();
     }
 
     static void ChildItinerary()
@@ -166,16 +180,26 @@ public class Boat
     			childrenOnOahu--;
     			childrenOnMolokai++;
     			//childrenOnBoat--;
+    			if(initialChildren == 1) {		// case for only one child, who cannot have a friend
+    				bg.ChildRowToMolokai(); 	// rowing alone... :'(
+    				notDone = false;
+    				return;
+    			}
     			childOnMolokai.sleep();
     			
     			//Woken up by adult to ferry back to Oahu
     			bg.ChildRowToOahu();
+    			childrenOnMolokai--;
+    			childrenOnOahu++;
     			boatIsOnOahu = true;
     			onOahu = true;
-    			//more code
     			
     			childrenOnBoat = 0;
-    			//more code
+    			if(childrenOnOahu > 0) {
+    				childOnOahu.wake();
+    			} else if(adultsOnOahu > 0) {
+    				adultOnOahu.wake();
+    			}
     			childOnOahu.sleep();
     			
     		}
@@ -206,17 +230,19 @@ public class Boat
     			else {
     				bg.ChildRowToOahu();
     				childrenOnOahu++;
+    				childrenOnMolokai--;
     				onOahu = true;
     				//code for waking
     				
+    				//System.out.println("DEBUG: "+KThread.currentThread().getName()+" going back!");
+    				//Debug();
+    				
     				childrenOnBoat = 0;
     				boatIsOnOahu = true;
-    				if(childrenOnOahu >= 1) {
-    					childrenOnBoat = 1;
+    				if(childrenOnOahu > 1) {
     					childOnOahu.wake();
     				} else if (adultsOnOahu > 0) {
     					adultOnOahu.wake();
-    					childOnOahu.sleep();
     				}
     			
     				
@@ -226,6 +252,12 @@ public class Boat
     		}
     		
     	}
+    	lock.release();
+    }
+    
+    static void Debug() {
+    	System.out.println("DEBUG: Oahu: "+adultsOnOahu+" Adults, "+childrenOnOahu+" Children");
+    	System.out.println("DEBUG: Molokai: "+adultsOnMolokai+" Adults, "+childrenOnMolokai+" Children");
     }
 
     static void SampleItinerary()
