@@ -483,6 +483,44 @@ public class UserProcess {
     }
 
     private int handleWrite(int Descriptor, void *buffer, int count){
+	    
+	     byte[] buffer = new byte[count];
+    	 
+    	 int rLength,bLength,memLength,length;
+    	 OpenFile file = fileDescriptor[Descriptor];
+	    if(Descriptor<=0 || Descriptor>=16 || count<0 || file==null)//input is not valid
+	    {
+	    	return -1;
+	    }
+	    
+	    
+	  	while(count>0)//ok to write
+	    	{	
+	    		if(count>1024)
+	    			rLength = 1024;
+	    		else
+	    			rLength=count;
+	    		
+	    		memLength =readVirtualMemory(virtualAddress,buffer,0,rLength);
+	    		bLength = file.write(buffer,0, memLength);
+	    		if(bLength==-1 || memLength==0)
+	    		{
+	    			return -1;
+	    			break;
+	    		}
+	    		
+	    		virtualAddress = virtualAddress+bLength;
+	    		length = length+bLength;
+	    		count=count-bLength;
+	    		
+	    		
+	    		
+	    	}
+	  	
+	    
+	  return length;
+	    
+	    
 
     }
 
@@ -555,6 +593,7 @@ public class UserProcess {
 
     /** This process's page table. */
     protected TranslationEntry[] pageTable;
+	protected OpenFile[] fileDescriptor;
     /** The number of contiguous pages occupied by the program. */
     protected int numPages;
 
