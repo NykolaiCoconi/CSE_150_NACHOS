@@ -23,9 +23,9 @@ public class UserProcess {
      * Allocate a new process.
      */
 
-    int maxlength = 225; //max length of address
-	int numFiles = 16 //Number of files they want ran
-	OpenFiles[] files = new OpenFile[numFiles]
+    	int maxlength = 225; //max length of address
+	int numFiles = 16; //Number of files they want ran
+	OpenFiles[] files = new OpenFile[numFiles];
 
 
     public UserProcess() {
@@ -34,10 +34,10 @@ public class UserProcess {
         //for (int i=0; i<numPhysPages; i++){
         //  pageTable[i] = new TranslationEntry(i,i, true,false,false,false);
         //}
-        files[0] = UserKernel.console.openForReading()
-        files[1] = UserKernel.console.openForWriting()
+        files[0] = UserKernel.console.openForReading();
+        files[1] = UserKernel.console.openForWriting();
         for(int i = 2; i<files.length; i++){
-            files[i] = null
+            files[i] = null;
         }
     }
     
@@ -464,13 +464,13 @@ public class UserProcess {
     }
 
     private int handleRead(int Descriptor, int buffer, int count){
-        Byte [] byte = new byte[count] //create byte array of count length
+        Byte [] byte = new byte[count]; //create byte array of count length
         int length = 0;
         if(Descriptor < 0 || Descriptor >15 || count<0){ //Index cannot be out of range. Count to read cannot be negative
             return -1;
         }
         OpenFile file;
-        if(files[Descriptor]==null){//check if file exists in  the descriptor table
+        if(files[Descriptor]==null){//check if file exists
             return -1;
         }
         file = files[Descriptor];
