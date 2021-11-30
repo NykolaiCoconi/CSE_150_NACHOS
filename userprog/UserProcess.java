@@ -482,7 +482,7 @@ public class UserProcess {
         return count;
     }
 
-    private int handleWrite(int Descriptor, void *buffer, int count){
+    private int handleWrite(int Descriptor, int virtualAddress, int count){
 	    
 	     byte[] buffer = new byte[pageSize];
     	 
