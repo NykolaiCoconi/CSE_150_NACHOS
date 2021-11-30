@@ -484,7 +484,7 @@ public class UserProcess {
 
     private int handleWrite(int Descriptor, void *buffer, int count){
 	    
-	     byte[] buffer = new byte[count];
+	     byte[] buffer = new byte[pageSize];
     	 
     	 int rLength,bLength,memLength,length;
     	 OpenFile file = fileDescriptor[Descriptor];
