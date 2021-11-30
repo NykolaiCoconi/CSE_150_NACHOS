@@ -444,7 +444,23 @@ public class UserProcess {
     }
 
     private int handleOpen(int name){
-
+      if (name<0){ // Check for bad argument
+        return -1;
+      }
+      String fileName = this.readVirtualMemoryString(name,maxlength);
+      if (fileName == null){ // Check that what you have isn’t empty
+        return -1;
+      }
+      OpenFile fileContent = ThreadedKernel.fileSystem.open(fileName,true);
+      if (fileContent == null){ // Check that what you have isn’t empty
+        return -1;
+      }
+      for (int i=0; i<files.length; i++){
+          if (files[i] == fileContent){ // look for matching file
+            return i; // if match, return descriptor
+          }
+      }
+      return -1; // if did not find, file doesn't exist
     }
 
     private int handleRead(int Descriptor, int buffer, int count){
