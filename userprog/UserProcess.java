@@ -23,9 +23,9 @@ public class UserProcess {
      * Allocate a new process.
      */
 
-    	int maxlength = 225; //max length of address
-	int numFiles = 16; //Number of files they want ran
-	OpenFiles[] files = new OpenFile[numFiles];
+	static int maxlength = 225; //max length of address
+	static int numFiles = 16; //Number of files they want ran
+	static OpenFile[] files = new OpenFile[numFiles];
 
 
     public UserProcess() {
@@ -402,7 +402,7 @@ public class UserProcess {
     public int handleSyscall(int syscall, int a0, int a1, int a2, int a3) {
         switch(syscall){
             case syscallHalt:
-                return handleHalt() //halt already given may need failsafes
+                return handleHalt(); //halt already given may need failsafes
             case syscallCreate:
                     return handleCreate(a0);
             case syscallOpen:	
@@ -464,7 +464,7 @@ public class UserProcess {
     }
 
     private int handleRead(int Descriptor, int buffer, int count){
-        Byte [] byte = new byte[count]; //create byte array of count length
+        byte [] bte = new byte[count]; //create byte array of count length
         int length = 0;
         if(Descriptor < 0 || Descriptor >15 || count<0){ //Index cannot be out of range. Count to read cannot be negative
             return -1;
@@ -474,11 +474,11 @@ public class UserProcess {
             return -1;
         }
         file = files[Descriptor];
-        length = file.read(byte,0,count);
+        length = file.read(bte,0,count);
         if(length== -1 || length ==0){ //An error occurred while                                                     /                            //reading file
             return -1;
         }
-        count=writeVirtualMemory(Descriptor,byte,0,length);
+        count=writeVirtualMemory(Descriptor,bte,0,length);
         return count;
     }
 
@@ -487,6 +487,7 @@ public class UserProcess {
 	     byte[] buffer = new byte[pageSize];
     	 
     	 int rLength,bLength,memLength,length;
+    	 length = 0;
     	 OpenFile file = fileDescriptor[Descriptor];
 	    if(Descriptor<=0 || Descriptor>=16 || count<0 || file==null)//input is not valid
 	    {
@@ -506,7 +507,7 @@ public class UserProcess {
 	    		if(bLength==-1 || memLength==0)
 	    		{
 	    			return -1;
-	    			break;
+	    			// break;
 	    		}
 	    		
 	    		virtualAddress = virtualAddress+bLength;
@@ -544,16 +545,16 @@ public class UserProcess {
 		if(fileName == null){ //Check that what you have isn’t empty		
             return -1;
 		}
-		check = -1;
+		int check = -1;
 		for(int i=2; i<files.length; i++){
-            if(files[i]!= null && files[i].getName().equals(name)){
+            if(files[i]!= null && files[i].getName().equals(""+name)){
 	            check = i;
             }
 		}
         if(check == -1){
-			return 0
+			return -1;
 		}
-		ThreadedKernel.fileSystem.remove(name);
+		ThreadedKernel.fileSystem.remove(""+name);
 		handleClose(check);
 		return 0;
     }
