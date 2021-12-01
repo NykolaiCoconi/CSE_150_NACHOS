@@ -463,6 +463,25 @@ public class UserProcess {
       }
       return -1; 
     }
+    
+//    private int handleOpen(int addr) {
+//    	Lib.debug(dbgProcess, "handleOpen: "+addr+"\n");
+//    	
+//    	String name = readVirtualMemoryString(addr, 256);
+//    	Lib.debug(dbgProcess, "file name: "+name+"\n");
+//    	OpenFile cfile = UserKernel.fileSystem.open(name, false);
+//    	
+//    	if(cfile == null) {
+//    		return -1;
+//    	} else {
+//    		//16 open files at a time
+//    		for(int i = 0; i < 16; i++) {
+//    			if(fds[i].file == null){
+//    				fhnd = fds
+//    			}
+//    		}
+//    	}
+//    }
 
     private int handleRead(int Descriptor, int buffer, int count){
         if(Descriptor < 0 || Descriptor >= files.length){
@@ -495,11 +514,11 @@ public class UserProcess {
         if(Descriptor< 0 || Descriptor >= files.length) {
             return -1;
         }
-        String write = readVirtualMemory(virtualAddress, bte, 0 , count);
+        int write = readVirtualMemory(virtualAddress, bte, 0 , count);
         if(write == -1) {
             return -1;
         }
-        String content = files[Descriptor].write(bte, 0, count);
+        int content = files[Descriptor].write(bte, 0, count);
         if (content == -1 || content < count) {
 			return -1;
 		}
@@ -535,7 +554,7 @@ public class UserProcess {
         if(check == -1){
 			return 0;
 		}
-		ThreadedKernel.fileSystem.remove(name);
+		ThreadedKernel.fileSystem.remove(""+name);
 		handleClose(check);
 		return 0;
     }
