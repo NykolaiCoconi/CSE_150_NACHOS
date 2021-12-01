@@ -23,7 +23,7 @@ public class UserProcess {
      * Allocate a new process.
      */
 
-	static int maxlength = 225; //max length of address
+	static int maxlength = 256; //max length of address
 	static int numFiles = 16; //Number of files they want ran
 	protected OpenFile[] files = new OpenFile[numFiles];
 
@@ -426,7 +426,7 @@ public class UserProcess {
         if(name<0){ // Check for bad argument
 			return -1;
 		}
-		String fileName = this.readVirtualMemoryString(name,maxlength);
+		String fileName = readVirtualMemoryString(name,maxlength);
 		if(fileName == null){ //Check that what you have isn’t empty		
             return -1;
 		}
@@ -444,85 +444,66 @@ public class UserProcess {
     }
 
     private int handleOpen(int name){
-      if (name<0){ // Check for bad argument
+      if (name<0){ 
         return -1;
       }
-      String fileName = this.readVirtualMemoryString(name,maxlength);
-      if (fileName == null){ // Check that what you have isn’t empty
+      String fileName = readVirtualMemoryString(name,maxlength);
+      if (fileName == null){ 
         return -1;
       }
-      OpenFile fileContent = ThreadedKernel.fileSystem.open(fileName,true);
-      if (fileContent == null){ // Check that what you have isn’t empty
+      OpenFile fileContent = ThreadedKernel.fileSystem.open(fileName,false);
+      if (fileContent == null){ 
         return -1;
       }
       for (int i=0; i<files.length; i++){
-          if (files[i] == fileContent){ // look for matching file
-            return i; // if match, return descriptor
+          if (files[i] == null){ 
+            files[i] = fileContent;
+            return i; 
           }
       }
-      return -1; // if did not find, file doesn't exist
+      return -1; 
     }
 
     private int handleRead(int Descriptor, int buffer, int count){
+        if(Descriptor < 0 || Descriptor >= files.length){
+	        return -1;
+        }
+		if(files[Descriptor] == null){
+			return -1;
+		}
         byte [] bte = new byte[count]; //create byte array of count length
         int length = 0;
-        if(Descriptor < 0 || Descriptor >15 || count<0){ //Index cannot be out of range. Count to read cannot be negative
-            return -1;
-        }
-        OpenFile file;
         if(files[Descriptor]==null){//check if file exists
             return -1;
         }
-        file = files[Descriptor];
-        length = file.read(bte,0,count);
-        if(length== -1 || length ==0){ //An error occurred while                                                     /                            //reading file
+        length = files[Descriptor].read(bte,0,count);
+        if(length == -1){ //An error occurred while                                                     /                            //reading file
             return -1;
         }
-        count=writeVirtualMemory(Descriptor,bte,0,length);
-        return count;
+        writeVirtualMemory(buffer,bte);
+        return length;
     }
 
     private int handleWrite(int Descriptor, int virtualAddress, int count){
-	    
-	     byte[] buffer = new byte[pageSize];
-    	 
-    	 int rLength,bLength,memLength,length;
-    	 length = 0;
-    	 OpenFile file = fileDescriptor[Descriptor];
-	    if(Descriptor<=0 || Descriptor>=16 || count<0 || file==null)//input is not valid
-	    {
-	    	return -1;
-	    }
-	    
-	    
-	  	while(count>0)//ok to write
-	    	{	
-	    		if(count>1024)
-	    			rLength = 1024;
-	    		else
-	    			rLength=count;
-	    		
-	    		memLength =readVirtualMemory(virtualAddress,buffer,0,rLength);
-	    		bLength = file.write(buffer,0, memLength);
-	    		if(bLength==-1 || memLength==0)
-	    		{
-	    			return -1;
-	    			// break;
-	    		}
-	    		
-	    		virtualAddress = virtualAddress+bLength;
-	    		length = length+bLength;
-	    		count=count-bLength;
-	    		
-	    		
-	    		
-	    	}
-	  	
-	    
-	  return length;
-	    
-	    
-
+        if(Descriptor < 0 || Descriptor >= files.length){
+	        return -1;
+        }
+		if(files[Descriptor] == null){
+			return -1;
+		}
+        byte[] bte = new byte[count];
+        if(Descriptor< 0 || Descriptor >= files.length) {
+            return -1;
+        }
+        String write = readVirtualMemory(virtualAddress, bte, 0 , count);
+        if(write == -1) {
+            return -1;
+        }
+        String content = files[Descriptor].write(bte, 0, count);
+        if (content == -1 || content < count) {
+			return -1;
+		}
+        return content;
     }
 
     private int handleClose(int Descriptor){
@@ -541,20 +522,20 @@ public class UserProcess {
         if(name<0){
 			return -1;
 		}
-		String fileName = this.readVirtualMemoryString(name,maxlength);
+		String fileName = readVirtualMemoryString(name,maxlength);
 		if(fileName == null){ //Check that what you have isn’t empty		
             return -1;
 		}
 		int check = -1;
 		for(int i=2; i<files.length; i++){
-            if(files[i]!= null && files[i].getName().equals(""+name)){
+            if(files[i]!= null && files[i].getName().equals(name)){
 	            check = i;
             }
 		}
         if(check == -1){
-			return -1;
+			return 0;
 		}
-		ThreadedKernel.fileSystem.remove(""+name);
+		ThreadedKernel.fileSystem.remove(name);
 		handleClose(check);
 		return 0;
     }
