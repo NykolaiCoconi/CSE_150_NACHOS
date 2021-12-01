@@ -25,7 +25,7 @@ public class UserProcess {
 
 	static int maxlength = 225; //max length of address
 	static int numFiles = 16; //Number of files they want ran
-	static OpenFile[] files = new OpenFile[numFiles];
+	protected OpenFile[] files = new OpenFile[numFiles];
 
 
     public UserProcess() {
